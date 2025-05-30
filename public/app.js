@@ -29,9 +29,14 @@ async function createTask(taskData) {
             },
             body: JSON.stringify(taskData)
         });
-        return await response.json();
+        const result = await response.json();
+        if (result) {
+            showNotification('Tarea creada exitosamente', 'success');
+        }
+        return result;
     } catch (error) {
         console.error('Error creating task:', error);
+        showNotification('Error al crear la tarea', 'error');
         return null;
     }
 }
@@ -46,9 +51,14 @@ async function updateTask(taskId, updates) {
             },
             body: JSON.stringify(updates)
         });
-        return await response.json();
+        const result = await response.json();
+        if (result) {
+            showNotification('Tarea actualizada exitosamente', 'success');
+        }
+        return result;
     } catch (error) {
         console.error('Error updating task:', error);
+        showNotification('Error al actualizar la tarea', 'error');
         return null;
     }
 }
@@ -56,14 +66,36 @@ async function updateTask(taskId, updates) {
 // Delete a task
 async function deleteTask(taskId) {
     try {
-        await fetch(`/api/tasks/${taskId}`, {
+        const response = await fetch(`/api/tasks/${taskId}`, {
             method: 'DELETE'
         });
-        return true;
+        if (response.ok) {
+            showNotification('Tarea eliminada exitosamente', 'success');
+            return true;
+        }
+        return false;
     } catch (error) {
         console.error('Error deleting task:', error);
+        showNotification('Error al eliminar la tarea', 'error');
         return false;
     }
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        ${message}
+    `;
+    document.body.appendChild(notification);
+
+    // Remove notification after 3 seconds
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }
 
 // Create task element from template
@@ -74,16 +106,37 @@ function createTaskElement(task) {
     taskCard.dataset.id = task.id;
     taskCard.dataset.status = task.status;
     
-    taskCard.querySelector('.task-title').textContent = task.title;
+    taskCard.querySelector('.task-title').innerHTML = `
+        <i class="fas fa-thumbtack"></i> ${task.title}
+    `;
     taskCard.querySelector('.task-description').textContent = task.description;
-    taskCard.querySelector('.assigned-to').textContent = `Asignado a: ${task.assignedTo}`;
-    taskCard.querySelector('.task-status').textContent = `Estado: ${task.status === 'pending' ? 'Pendiente' : 'Completada'}`;
+    taskCard.querySelector('.assigned-to').innerHTML = `
+        <i class="fas fa-user"></i> ${task.assignedTo}
+    `;
+    
+    const statusBadge = taskCard.querySelector('.task-status');
+    statusBadge.classList.add(task.status);
+    statusBadge.innerHTML = `
+        <i class="fas ${task.status === 'pending' ? 'fa-clock' : 'fa-check-circle'}"></i>
+        ${task.status === 'pending' ? 'Pendiente' : 'Completada'}
+    `;
     
     const statusBtn = taskCard.querySelector('.status-btn');
-    statusBtn.textContent = task.status === 'pending' ? 'Marcar Completada' : 'Marcar Pendiente';
+    statusBtn.innerHTML = `
+        <i class="fas ${task.status === 'pending' ? 'fa-check' : 'fa-undo'}"></i>
+        ${task.status === 'pending' ? 'Marcar Completada' : 'Marcar Pendiente'}
+    `;
     statusBtn.addEventListener('click', () => toggleTaskStatus(task.id, task.status));
     
     taskCard.querySelector('.delete-btn').addEventListener('click', () => handleDeleteTask(task.id));
+    
+    // Agregar animación de entrada
+    taskCard.style.opacity = '0';
+    taskCard.style.transform = 'translateY(20px)';
+    setTimeout(() => {
+        taskCard.style.opacity = '1';
+        taskCard.style.transform = 'translateY(0)';
+    }, 50);
     
     return taskCard;
 }
@@ -93,10 +146,22 @@ async function renderTasks() {
     const tasks = await fetchTasks();
     tasksList.innerHTML = '';
     
-    tasks.filter(task => {
+    const filteredTasks = tasks.filter(task => {
         if (currentFilter === 'all') return true;
         return task.status === currentFilter;
-    }).forEach(task => {
+    });
+
+    if (filteredTasks.length === 0) {
+        tasksList.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-clipboard-list"></i>
+                <p>No hay tareas ${currentFilter !== 'all' ? 'en este estado' : ''}</p>
+            </div>
+        `;
+        return;
+    }
+    
+    filteredTasks.forEach(task => {
         tasksList.appendChild(createTaskElement(task));
     });
 }
@@ -112,11 +177,18 @@ async function toggleTaskStatus(taskId, currentStatus) {
 
 // Handle task deletion
 async function handleDeleteTask(taskId) {
+    const taskCard = document.querySelector(`[data-id="${taskId}"]`);
     if (confirm('¿Estás seguro de que deseas eliminar esta tarea?')) {
-        const deleted = await deleteTask(taskId);
-        if (deleted) {
-            renderTasks();
-        }
+        // Agregar animación de salida
+        taskCard.style.opacity = '0';
+        taskCard.style.transform = 'translateY(20px)';
+        
+        setTimeout(async () => {
+            const deleted = await deleteTask(taskId);
+            if (deleted) {
+                renderTasks();
+            }
+        }, 300);
     }
 }
 
@@ -146,6 +218,73 @@ filterButtons.forEach(button => {
         renderTasks();
     });
 });
+
+// Add CSS for notifications
+const style = document.createElement('style');
+style.textContent = `
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 1rem 2rem;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+    }
+    
+    .notification.success {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .notification.error {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .notification.fade-out {
+        animation: slideOut 0.3s ease forwards;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #64748b;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
 
 // Initial render
 renderTasks(); 

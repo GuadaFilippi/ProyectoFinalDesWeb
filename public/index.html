@@ -5,39 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de Tareas Colaborativas</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Gestor de Tareas Colaborativas</h1>
+            <h1><i class="fas fa-tasks"></i> Gestor de Tareas Colaborativas</h1>
+            <p>Organiza y gestiona tus tareas de manera eficiente</p>
         </header>
 
         <main>
             <section class="task-form">
-                <h2>Nueva Tarea</h2>
+                <h2><i class="fas fa-plus-circle"></i> Nueva Tarea</h2>
                 <form id="taskForm">
                     <div class="form-group">
-                        <label for="title">Título:</label>
-                        <input type="text" id="title" required>
+                        <label for="title"><i class="fas fa-heading"></i> Título:</label>
+                        <input type="text" id="title" placeholder="Ingresa el título de la tarea" required>
                     </div>
                     <div class="form-group">
-                        <label for="description">Descripción:</label>
-                        <textarea id="description" required></textarea>
+                        <label for="description"><i class="fas fa-align-left"></i> Descripción:</label>
+                        <textarea id="description" placeholder="Describe los detalles de la tarea" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="assignedTo">Asignado a:</label>
-                        <input type="text" id="assignedTo" required>
+                        <label for="assignedTo"><i class="fas fa-user"></i> Asignado a:</label>
+                        <input type="text" id="assignedTo" placeholder="Nombre del responsable" required>
                     </div>
-                    <button type="submit">Crear Tarea</button>
+                    <button type="submit"><i class="fas fa-save"></i> Crear Tarea</button>
                 </form>
             </section>
 
             <section class="tasks-list">
                 <h2>Tareas</h2>
                 <div class="filters">
-                    <button class="filter-btn active" data-status="all">Todas</button>
-                    <button class="filter-btn" data-status="pending">Pendientes</button>
-                    <button class="filter-btn" data-status="completed">Completadas</button>
+                    <button class="filter-btn active" data-status="all">
+                        <i class="fas fa-list"></i> Todas
+                    </button>
+                    <button class="filter-btn" data-status="pending">
+                        <i class="fas fa-clock"></i> Pendientes
+                    </button>
+                    <button class="filter-btn" data-status="completed">
+                        <i class="fas fa-check-circle"></i> Completadas
+                    </button>
                 </div>
                 <div id="tasksList"></div>
             </section>
@@ -49,12 +58,12 @@
             <h3 class="task-title"></h3>
             <p class="task-description"></p>
             <div class="task-meta">
-                <span class="assigned-to"></span>
-                <span class="task-status"></span>
+                <span class="assigned-to"><i class="fas fa-user"></i></span>
+                <span class="task-status status-badge"></span>
             </div>
             <div class="task-actions">
-                <button class="status-btn">Cambiar Estado</button>
-                <button class="delete-btn">Eliminar</button>
+                <button class="status-btn"></button>
+                <button class="delete-btn"><i class="fas fa-trash"></i> Eliminar</button>
             </div>
         </div>
     </template>
