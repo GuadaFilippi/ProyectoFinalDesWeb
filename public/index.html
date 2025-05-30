@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Tareas Colaborativas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Gestor de Tareas Colaborativas</h1>
+        </header>
+
+        <main>
+            <section class="task-form">
+                <h2>Nueva Tarea</h2>
+                <form id="taskForm">
+                    <div class="form-group">
+                        <label for="title">Título:</label>
+                        <input type="text" id="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Descripción:</label>
+                        <textarea id="description" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="assignedTo">Asignado a:</label>
+                        <input type="text" id="assignedTo" required>
+                    </div>
+                    <button type="submit">Crear Tarea</button>
+                </form>
+            </section>
+
+            <section class="tasks-list">
+                <h2>Tareas</h2>
+                <div class="filters">
+                    <button class="filter-btn active" data-status="all">Todas</button>
+                    <button class="filter-btn" data-status="pending">Pendientes</button>
+                    <button class="filter-btn" data-status="completed">Completadas</button>
+                </div>
+                <div id="tasksList"></div>
+            </section>
+        </main>
+    </div>
+
+    <template id="taskTemplate">
+        <div class="task-card">
+            <h3 class="task-title"></h3>
+            <p class="task-description"></p>
+            <div class="task-meta">
+                <span class="assigned-to"></span>
+                <span class="task-status"></span>
+            </div>
+            <div class="task-actions">
+                <button class="status-btn">Cambiar Estado</button>
+                <button class="delete-btn">Eliminar</button>
+            </div>
+        </div>
+    </template>
+
+    <script src="app.js"></script>
+</body>
+</html> 
